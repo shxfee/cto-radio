@@ -1,0 +1,8 @@
+[Unit]
+Description=Audio FIFO for the Spotify stream
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/usr/bin/bash -c 'test -p %h/.local/share/go-librespot/audio.fifo || mkfifo %h/.local/share/go-librespot/audio.fifo'
+[Install]
+WantedBy=default.target

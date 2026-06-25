@@ -1,0 +1,10 @@
+[Unit]
+Description=Hold the audio FIFO open (prevents EOF/SIGPIPE when peers restart)
+Requires=cto-fifo.service
+After=cto-fifo.service
+[Service]
+ExecStart=/usr/bin/bash -c 'exec 3<>%h/.local/share/go-librespot/audio.fifo; exec sleep infinity'
+Restart=always
+RestartSec=2
+[Install]
+WantedBy=default.target

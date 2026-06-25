@@ -1,0 +1,25 @@
+# go-librespot — turn this box into an always-on Spotify Connect device.
+# Place at ~/.config/go-librespot/config.yml
+# No secrets live here; auth credentials are cached in state.json after first login.
+device_name: MyBox          # the name that shows up in Spotify's device picker
+device_type: speaker
+bitrate: 320                 # 96 / 160 / 320  (drop to 128 if listeners buffer over high latency)
+
+# Audio out → named pipe → ffmpeg → Icecast
+audio_backend: pipe
+audio_output_pipe: /home/USER/.local/share/go-librespot/audio.fifo
+audio_output_pipe_format: s16le
+
+# Headless OAuth: the daemon prints an authorize link; open it in a browser
+# logged into your Spotify account, approve, and the redirect to 127.0.0.1
+# completes the login. Credentials persist to state.json afterwards.
+credentials:
+  type: interactive
+
+zeroconf_enabled: true       # also discoverable by Spotify apps on the same LAN
+server:
+  enabled: true              # local control/monitor API
+  address: localhost
+  port: 3678
+log_level: info
+initial_volume: 100

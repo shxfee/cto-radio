@@ -1,0 +1,52 @@
+<icecast>
+    <location>Earth</location>
+    <admin>you@example.com</admin>
+
+    <limits>
+        <clients>20</clients>
+        <sources>6</sources>
+        <queue-size>2097152</queue-size>
+        <client-timeout>30</client-timeout>
+        <header-timeout>15</header-timeout>
+        <source-timeout>7200</source-timeout>   <!-- keep the source alive across long pauses -->
+        <burst-on-connect>1</burst-on-connect>
+        <burst-size>262144</burst-size>          <!-- ~15s head-start buffer for listeners -->
+    </limits>
+
+    <authentication>
+        <source-password>CHANGE_ME_SOURCE</source-password>
+        <relay-password>CHANGE_ME_SOURCE</relay-password>
+        <admin-user>admin</admin-user>
+        <admin-password>CHANGE_ME_ADMIN</admin-password>
+    </authentication>
+
+    <hostname>YOUR_SERVER_IP</hostname>
+    <listen-socket><port>8000</port></listen-socket>
+
+    <!-- The mount token is your bearer secret. Pick something unguessable. -->
+    <mount type="normal">
+        <mount-name>/stream-CHANGE_THIS_TOKEN.mp3</mount-name>
+        <stream-name>My box's voice</stream-name>
+        <public>0</public>
+        <fallback-mount>/silence.mp3</fallback-mount>   <!-- served when the source is briefly absent -->
+        <fallback-override>1</fallback-override>
+    </mount>
+
+    <fileserve>1</fileserve>
+    <paths>
+        <basedir>/usr/share/icecast</basedir>
+        <logdir>/var/log/icecast</logdir>
+        <webroot>/usr/share/icecast/web</webroot>
+        <adminroot>/usr/share/icecast/admin</adminroot>
+        <alias source="/" destination="/status.xsl"/>
+    </paths>
+    <logging>
+        <accesslog>access.log</accesslog>
+        <errorlog>error.log</errorlog>
+        <loglevel>3</loglevel>
+    </logging>
+    <security>
+        <chroot>0</chroot>
+        <changeowner><user>icecast</user><group>icecast</group></changeowner>
+    </security>
+</icecast>

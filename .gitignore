@@ -1,0 +1,6 @@
+# never commit real secrets
+stream.env
+config.yml
+icecast.xml
+state.json
+*.key

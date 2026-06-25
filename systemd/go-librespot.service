@@ -1,0 +1,10 @@
+[Unit]
+Description=go-librespot — Spotify Connect body
+Requires=cto-fifo.service
+After=cto-fifo.service cto-pipe-keeper.service
+[Service]
+ExecStart=/usr/local/bin/go-librespot
+Restart=always
+RestartSec=3
+[Install]
+WantedBy=default.target

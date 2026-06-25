@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Live</title>
+<style>
+  html,body{height:100%;margin:0;background:#0b0b10;color:#e7e7ee;
+    font-family:system-ui,-apple-system,sans-serif;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1.1rem}
+  .dot{width:14px;height:14px;border-radius:50%;background:#7c5cff;
+    box-shadow:0 0 18px #7c5cff;animation:pulse 1.8s infinite ease-in-out}
+  .dot.warn{background:#ffb45c;box-shadow:0 0 18px #ffb45c}
+  @keyframes pulse{0%,100%{opacity:.4;transform:scale(.85)}50%{opacity:1;transform:scale(1.15)}}
+  h1{font-size:1.1rem;font-weight:600;letter-spacing:.04em;margin:0;opacity:.9}
+  #st{font-size:.78rem;opacity:.5;margin:0;min-height:1em}
+  button{background:#7c5cff;border:0;color:#fff;font-size:1rem;padding:.7rem 1.6rem;
+    border-radius:999px;cursor:pointer;letter-spacing:.03em}
+</style>
+</head>
+<body>
+  <div class="dot" id="dot"></div>
+  <h1>Live</h1>
+  <button id="go">▶ listen</button>
+  <p id="st">tap to start</p>
+  <audio id="a" preload="auto"></audio>
+<script>
+  // point this at your Icecast mount
+  const SRC = "/stream-CHANGE_THIS_TOKEN.mp3";
+  const a = document.getElementById('a');
+  const dot = document.getElementById('dot');
+  const st = document.getElementById('st');
+  const btn = document.getElementById('go');
+  let want = false, lastT = -1, lastAdv = Date.now();
+
+  function connect(){
+    a.src = SRC + "?_=" + Date.now();   // fresh live connection
+    a.load();
+    a.play().catch(()=>{});
+    lastAdv = Date.now();
+  }
+  function status(s, warn){ st.textContent = s; dot.classList.toggle('warn', !!warn); }
+
+  btn.onclick = ()=>{ want = true; btn.style.display='none'; status('connecting…'); connect(); };
+
+  // transient events: just show state, never tear the connection down
+  a.addEventListener('playing', ()=> status('live'));
+  a.addEventListener('waiting', ()=> status('buffering…', true));
+  // only a genuine error reconnects, and not instantly
+  a.addEventListener('error', ()=>{ if(want){ status('reconnecting…', true); setTimeout(connect, 1500); } });
+
+  // gentle watchdog: only if time hasn't advanced for a full 15s
+  setInterval(()=>{
+    if(!want || a.paused) return;
+    if(a.currentTime !== lastT){ lastT = a.currentTime; lastAdv = Date.now(); return; }
+    if(Date.now() - lastAdv > 15000){ status('reconnecting…', true); connect(); }
+  }, 3000);
+
+  // resuming the tab after backgrounding — kick it back to life
+  document.addEventListener('visibilitychange', ()=>{
+    if(!document.hidden && want && a.paused){ status('resuming…', true); connect(); }
+  });
+</script>
+</body>
+</html>
