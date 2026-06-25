@@ -76,6 +76,29 @@ systemctl --user enable --now cto-fifo cto-pipe-keeper go-librespot cto-stream
 Now your box shows up in Spotify as a device. Play to it from anywhere, and open
 `http://YOUR_IP:8000/listen.html` to hear it.
 
+## Listening
+
+The `listen.html` page is fine in a pinch, but **mobile browsers are the worst case for a live stream** — they buffer poorly and won't auto-resume after a stall. For a steady listen, use a real audio app and point it at the raw mount (`http://YOUR_IP:8000/stream-<token>.mp3`):
+
+- **VLC** (any platform) — most bulletproof. *New stream* → paste the URL.
+- **Transistor** (Android, F-Droid) — minimal, purpose-built for one custom radio URL.
+
+Some apps choke on a bare `.mp3` and want a **playlist file**. Drop a `.pls` (and/or `.m3u`) in the Icecast webroot — it carries the station name *and* the stream URL, so the app shows a proper named station instead of nothing:
+
+```bash
+STREAM="http://YOUR_IP:8000/stream-<token>.mp3"
+
+# .pls — most widely accepted by radio apps
+printf '[playlist]\nNumberOfEntries=1\nFile1=%s\nTitle1=My box\nLength1=-1\nVersion=2\n' "$STREAM" \
+  | sudo tee /usr/share/icecast/web/station.pls >/dev/null
+
+# .m3u — alternative
+printf '#EXTM3U\n#EXTINF:-1,My box\n%s\n' "$STREAM" \
+  | sudo tee /usr/share/icecast/web/station.m3u >/dev/null
+```
+
+Then add `http://YOUR_IP:8000/station.pls` in the app. (`.pls` plays cleanly in VLC; if an app prefers the other, `.m3u` is right there.)
+
 ## How it holds together
 
 - **The FIFO keeper** (`cto-pipe-keeper`) holds both ends of the named pipe open. Without it, when ffmpeg or go-librespot restarts the other side gets an EOF or `SIGPIPE` and dies. The keeper opens the FIFO read-write and just sits there — it never reads, so it steals no audio, it only keeps the pipe from ever signalling end-of-stream.
