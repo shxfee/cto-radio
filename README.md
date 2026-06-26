@@ -29,7 +29,9 @@ No PulseAudio/PipeWire needed — audio goes straight through a named pipe.
 | `config.yml.example` | go-librespot config — device name, bitrate, pipe output, headless OAuth |
 | `icecast.xml.example` | Icecast config — passwords, the mount, a silence fallback |
 | `stream.env.example` | source password + mount token for the ffmpeg service |
-| `listen.html` | a dark, self-reconnecting player page |
+| `listen.html` | a dark, self-reconnecting player page — shows cover art, title and progress |
+| `cto-now.sh` | polls go-librespot and writes `now.json` into the webroot for the player |
+| `cto-now.service` | `--user` service that runs the now-playing feeder |
 | `systemd/*.service` | four `--user` services that keep the whole chain alive |
 
 ## Setup

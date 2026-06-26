@@ -1,0 +1,12 @@
+[Unit]
+Description=cto-radio now-playing feeder (writes now.json for listen.html)
+After=go-librespot.service
+Wants=go-librespot.service
+
+[Service]
+ExecStart=%h/.local/bin/cto-now.sh
+Restart=always
+RestartSec=3
+
+[Install]
+WantedBy=default.target

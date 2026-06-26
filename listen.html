@@ -3,26 +3,42 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Live</title>
+<title>CTO — live</title>
 <style>
+  :root{--accent:#7c5cff}
   html,body{height:100%;margin:0;background:#0b0b10;color:#e7e7ee;
-    font-family:system-ui,-apple-system,sans-serif;
-    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1.1rem}
-  .dot{width:14px;height:14px;border-radius:50%;background:#7c5cff;
-    box-shadow:0 0 18px #7c5cff;animation:pulse 1.8s infinite ease-in-out}
-  .dot.warn{background:#ffb45c;box-shadow:0 0 18px #ffb45c}
+    font-family:system-ui,-apple-system,sans-serif;overflow:hidden;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1rem}
+  #bg{position:fixed;inset:-25%;background-size:cover;background-position:center;z-index:-1;
+    filter:blur(80px) saturate(1.5) brightness(.45);transform:scale(1.2);
+    transition:background-image .8s ease;opacity:.75}
+  #art{width:min(68vw,300px);aspect-ratio:1;border-radius:18px;
+    background:#15151c center/cover no-repeat;
+    box-shadow:0 0 0 1px #ffffff14, 0 22px 60px #000a, 0 0 55px var(--accent);
+    animation:breathe 6s ease-in-out infinite}
+  @keyframes breathe{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-7px) scale(1.015)}}
+  #title{font-size:1.15rem;font-weight:600;margin:0;text-align:center;max-width:82vw;line-height:1.3}
+  #artist{font-size:.9rem;opacity:.6;margin:0;text-align:center;max-width:82vw}
+  #bar{width:min(68vw,300px);height:3px;background:#ffffff1a;border-radius:2px;overflow:hidden}
+  #fill{height:100%;width:0;background:var(--accent);box-shadow:0 0 10px var(--accent);transition:width .9s linear}
+  .row{display:flex;align-items:center;gap:.5rem}
+  .dot{width:9px;height:9px;border-radius:50%;background:var(--accent);
+    box-shadow:0 0 12px var(--accent);animation:pulse 1.8s infinite ease-in-out}
+  .dot.warn{background:#ffb45c;box-shadow:0 0 12px #ffb45c}
   @keyframes pulse{0%,100%{opacity:.4;transform:scale(.85)}50%{opacity:1;transform:scale(1.15)}}
-  h1{font-size:1.1rem;font-weight:600;letter-spacing:.04em;margin:0;opacity:.9}
-  #st{font-size:.78rem;opacity:.5;margin:0;min-height:1em}
-  button{background:#7c5cff;border:0;color:#fff;font-size:1rem;padding:.7rem 1.6rem;
+  #st{font-size:.72rem;opacity:.45;margin:0;letter-spacing:.05em}
+  button{background:var(--accent);border:0;color:#fff;font-size:1rem;padding:.7rem 1.8rem;
     border-radius:999px;cursor:pointer;letter-spacing:.03em}
 </style>
 </head>
 <body>
-  <div class="dot" id="dot"></div>
-  <h1>Live</h1>
+  <div id="bg"></div>
+  <div id="art"></div>
+  <h1 id="title">CTO</h1>
+  <p id="artist">the mind's voice</p>
+  <div id="bar"><div id="fill"></div></div>
   <button id="go">▶ listen</button>
-  <p id="st">tap to start</p>
+  <div class="row"><span class="dot" id="dot"></span><p id="st">tap to start</p></div>
   <audio id="a" preload="auto"></audio>
 <script>
   // point this at your Icecast mount
@@ -60,6 +76,25 @@
   document.addEventListener('visibilitychange', ()=>{
     if(!document.hidden && want && a.paused){ status('resuming…', true); connect(); }
   });
+
+  // ── now-playing: art + title + progress, polled from /now.json ──
+  const art=document.getElementById('art'), bg=document.getElementById('bg'),
+        titleEl=document.getElementById('title'), artistEl=document.getElementById('artist'),
+        fill=document.getElementById('fill');
+  let curArt='';
+  async function poll(){
+    try{
+      const r=await fetch('/now.json?_='+Date.now(),{cache:'no-store'});
+      const n=await r.json();
+      if(n.name) titleEl.textContent=n.name;
+      if(n.artist) artistEl.textContent=n.artist + (n.album? ' · '+n.album : '');
+      if(n.art && n.art!==curArt){ curArt=n.art;
+        art.style.backgroundImage=`url("${n.art}")`;
+        bg.style.backgroundImage=`url("${n.art}")`; }
+      if(n.duration){ fill.style.width=(100*Math.min(1,(n.position||0)/n.duration))+'%'; }
+    }catch(e){}
+  }
+  setInterval(poll,2000); poll();
 </script>
 </body>
 </html>
