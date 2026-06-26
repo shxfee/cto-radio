@@ -1,5 +1,12 @@
 # cto-radio
 
+> [!WARNING]
+> **Experimental — not for public consumption.** This is a personal, single-listener
+> hobby stream. It is **extremely unstable**: it drops, stutters, and goes silent
+> without notice, and any public endpoint may vanish at any time. Don't depend on it,
+> don't share the listen link, and don't treat any URL here as a service. Read it as a
+> reference build, not a station you can tune into.
+
 Turn a headless box into an **always-on Spotify Connect device** that streams whatever it plays to a webpage you can open anywhere.
 
 Two problems this solves:
