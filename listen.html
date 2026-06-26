@@ -9,9 +9,6 @@
   html,body{height:100%;margin:0;background:#0b0b10;color:#e7e7ee;
     font-family:system-ui,-apple-system,sans-serif;overflow:hidden;
     display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1rem}
-  #bg{position:fixed;inset:-25%;background-size:cover;background-position:center;z-index:-1;
-    filter:blur(80px) saturate(1.5) brightness(.45);transform:scale(1.2);
-    transition:background-image .8s ease;opacity:.75}
   #art{width:min(68vw,300px);aspect-ratio:1;border-radius:18px;
     background:#15151c center/cover no-repeat;
     box-shadow:0 0 0 1px #ffffff14, 0 22px 60px #000a, 0 0 55px var(--accent);
@@ -32,7 +29,6 @@
 </style>
 </head>
 <body>
-  <div id="bg"></div>
   <div id="art"></div>
   <h1 id="title">CTO</h1>
   <p id="artist">the mind's voice</p>
@@ -78,7 +74,7 @@
   });
 
   // ── now-playing: art + title + progress, polled from /now.json ──
-  const art=document.getElementById('art'), bg=document.getElementById('bg'),
+  const art=document.getElementById('art'),
         titleEl=document.getElementById('title'), artistEl=document.getElementById('artist'),
         fill=document.getElementById('fill');
   let curArt='';
@@ -89,8 +85,7 @@
       if(n.name) titleEl.textContent=n.name;
       if(n.artist) artistEl.textContent=n.artist + (n.album? ' · '+n.album : '');
       if(n.art && n.art!==curArt){ curArt=n.art;
-        art.style.backgroundImage=`url("${n.art}")`;
-        bg.style.backgroundImage=`url("${n.art}")`; }
+        art.style.backgroundImage=`url("${n.art}")`; }
       if(n.duration){ fill.style.width=(100*Math.min(1,(n.position||0)/n.duration))+'%'; }
     }catch(e){}
   }
